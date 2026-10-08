@@ -1,0 +1,9 @@
+# Local builds and private data
+bridge/target/
+node_modules/
+*.log
+.DS_Store
+.env
+.env.*
+backups/
+*.workspaces.json
