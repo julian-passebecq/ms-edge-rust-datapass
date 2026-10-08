@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Zero-dependency Edge MV3 workspace extension and opt-in Rust host",
   "scripts": {
-    "test": "node --test tests/*.test.mjs",
+    "test": "node --test",
     "check": "node scripts/check.mjs"
   }
 }
