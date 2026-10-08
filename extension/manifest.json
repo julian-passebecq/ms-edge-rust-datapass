@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "DataPass Edge Workspaces",
+  "short_name": "DataPass",
+  "version": "0.1.0",
+  "description": "Local-only workspace tree, tab navigation, and opt-in tab suspension for Microsoft Edge.",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "tabs",
+    "storage",
+    "sidePanel"
+  ],
+  "optional_permissions": [
+    "nativeMessaging"
+  ],
+  "action": {
+    "default_title": "Open DataPass workspaces"
+  },
+  "background": {
+    "service_worker": "background.mjs",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  }
+}
