@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>DataPass Workspaces</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="app">
+  <header class="brand">
+    <div class="brand-icon" aria-hidden="true">D</div>
+    <div class="brand-copy"><strong>DATAPASS</strong><span>EDGE WORKSPACES</span></div>
+    <button id="refresh" class="icon-button" title="Refresh tabs" aria-label="Refresh tabs">↻</button>
+  </header>
+  <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" autocomplete="off" type="search" aria-label="Search workspaces and tabs" placeholder="Find a tab, project, conversation…"><kbd>/</kbd></div>
+  <section class="memory" aria-label="Browser tabs summary">
+    <div><span class="small-label">CURRENT WINDOW</span><div class="metric"><strong id="loaded-count">0</strong><span>loaded</span><span class="dot">·</span><strong id="sleep-count">0</strong><span>discarded</span></div></div>
+    <button id="sleep" class="quiet-button" title="Discard eligible inactive tabs; unsaved edits may be lost">Sleep inactive</button>
+  </section>
+  <section class="section-heading"><h1>WORKSPACES</h1><button id="new-project" class="text-button">+ New</button></section>
+  <form id="project-form" class="inline-form" hidden>
+    <label for="project-name">Workspace name</label>
+    <div class="form-row"><input id="project-name" maxlength="60" required placeholder="Project name"><button type="submit">Create</button><button type="button" id="cancel-project" class="ghost-button">Cancel</button></div>
+  </form>
+  <div id="projects" class="project-list" role="navigation" aria-label="Saved workspaces"></div>
+  <div class="workspace-toolbar">
+    <button id="save-tab" class="secondary-button" title="Save current page in selected workspace">+ Current tab</button>
+    <button id="add-link" class="secondary-button">+ Link</button>
+  </div>
+  <form id="link-form" class="inline-form" hidden>
+    <label for="link-title">Title</label><input id="link-title" maxlength="120" placeholder="Conversation or site">
+    <label for="link-url">URL</label><input id="link-url" required type="url" placeholder="https://…">
+    <div class="form-row"><button type="submit">Save link</button><button type="button" id="cancel-link" class="ghost-button">Cancel</button></div>
+  </form>
+  <section class="section-heading tabs-heading"><h2>OPEN TABS</h2><span id="tabs-count" class="count">0</span></section>
+  <div id="open-tabs" class="open-tabs" aria-label="Tabs in current Edge window"></div>
+  <footer class="footer">
+    <div class="footer-actions">
+      <button id="capture" title="Save eligible tabs from this Edge window">Capture window</button>
+      <button id="restore" title="Open up to eight saved workspace links">Open workspace</button>
+    </div>
+    <div class="footer-secondary">
+      <button id="export">Export backup</button><button id="import">Import backup</button><button id="bridge">Rust bridge</button>
+    </div>
+    <p>Local URL metadata only · No page scraping · AtlasNote independent</p>
+  </footer>
+</main>
+<input id="backup-file" type="file" accept=".json,application/json" hidden>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script type="module" src="panel.mjs"></script>
+</body>
+</html>
