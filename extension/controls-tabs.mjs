@@ -1,9 +1,10 @@
+import {render} from "./ui.mjs";
 import {addLink} from "./core.mjs";
 import {bindCapture} from "./controls-capture.mjs";
 import {bindSleep} from "./controls-sleep.mjs";
 const $=id=>document.getElementById(id);
 export function bindTabs(api){
-  $("search").addEventListener("input",()=>api.refresh());
+  $("search").addEventListener("input",()=>render(api.getState(),api.getTabs()));
   $("refresh").addEventListener("click",()=>api.run(api.refresh));
   $("save-tab").addEventListener("click",()=>api.run(async()=>{
     const tab=api.getTabs().find(t=>t.active);
@@ -33,7 +34,7 @@ export function bindTabs(api){
       event.preventDefault();$("search").focus();$("search").select();
     }
     if(event.key==="Escape"&&document.activeElement===$("search")){
-      $("search").value="";$("search").blur();api.run(api.refresh);
+      $("search").value="";$("search").blur();render(api.getState(),api.getTabs());
     }
   });
   let refreshTimer;
