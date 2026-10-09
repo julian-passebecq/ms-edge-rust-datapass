@@ -10,7 +10,7 @@ const feeds=new Map(),errors=new Map(),loading=new Set(),repos=new Map();
 const ctx={
   get state(){return state;},get workspaces(){return workspaces;},
   get tabs(){return tabs;},feeds,errors,loading,repos,
-  mutate,refreshFeed,refreshRepos,reloadWorkspaces,run,show,open
+  mutate,refreshFeed,refreshVisible,refreshRepos,reloadWorkspaces,run,show,open
 };
 function show(message){
   const bar=document.getElementById("notice");
@@ -71,6 +71,39 @@ async function refreshFeed(id){
     show(def.title+" : source indisponible, ouvre le site original.");
   }finally{
     loading.delete(id);render();
+  }
+}
+async function refreshVisible(){
+  if(loading.has("bulk"))return;
+  const cards=new Set(state.cards.filter(c=>c.visible&&
+    (state.section==="all"||CATALOG.find(d=>d.id===c.id)?.section===state.section)).map(c=>c.id));
+  const defs=CATALOG.filter(d=>d.feed&&cards.has(d.id));
+  if(!defs.length){show("Aucun flux d'actualités visible dans cette vue.");return;}
+  const origins=[...new Set(defs.map(d=>new URL(feedUrl(d.feed)).origin))];
+  // Permission request happens directly inside a toolbar click's user gesture.
+  const permission=chrome.permissions.request({origins:origins.map(origin=>origin+"/*")});
+  loading.add("bulk");
+  defs.forEach(d=>{loading.add(d.id);errors.delete(d.id);});
+  render();
+  try{
+    if(!await permission)throw Error("Autorisation des sources refusée.");
+    let cursor=0,successes=0,failures=0;
+    async function worker(){
+      while(cursor<defs.length){
+        const def=defs[cursor++];
+        try{feeds.set(def.id,await fetchPublicFeed(def.feed));successes++;}
+        catch(error){errors.set(def.id,error?.message||String(error));failures++;}
+        finally{loading.delete(def.id);render();}
+      }
+    }
+    await Promise.all(Array.from({length:Math.min(3,defs.length)},()=>worker()));
+    show(successes+" flux mis à jour"+(failures?" · "+failures+" indisponibles":"")+".");
+  }catch(error){
+    for(const d of defs)errors.set(d.id,error?.message||String(error));
+    show("Actualisation refusée ou impossible : "+(error?.message||String(error)));
+  }finally{
+    defs.forEach(d=>loading.delete(d.id));
+    loading.delete("bulk");render();
   }
 }
 async function refreshRepos(){

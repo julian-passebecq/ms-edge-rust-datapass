@@ -63,6 +63,7 @@ export function bindDashboardActions(ctx){
     if(b.dataset.action==="refresh-repos"){void ctx.refreshRepos();return;}
     const fn=commands[b.dataset.action];if(fn)ctx.run(fn);
   });
+  $("refresh-visible").addEventListener("click",()=>{void ctx.refreshVisible();});
   $("manage").addEventListener("click",()=>$("manage-dialog").showModal());
   $("empty-manage").addEventListener("click",()=>$("manage-dialog").showModal());
   $("close-manage").addEventListener("click",()=>$("manage-dialog").close());

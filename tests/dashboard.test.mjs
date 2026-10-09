@@ -21,6 +21,11 @@ test("layout hides/restores cards and persists widths safely",()=>{
  assert.equal(normalizeDashboard({schemaVersion:2}).schemaVersion,1);
  assert.equal(start.cards.find(c=>c.id==="cnn").visible,true);
 });
+test("Mentalist suggestions include four subjective, independently labelled episodes",()=>{
+ const eps=defaultDashboard().episodes;
+ assert.deepEqual(eps.map(x=>x.id),["s05e20","s02e19","s02e06","s01e17"]);
+ for(const ep of eps)assert.equal(new URL(ep.url).protocol,"https:");
+});
 test("keyboard widget reordering leaves stable distinct IDs",()=>{
  const s=moveCard(defaultDashboard(),"bfm",1);
  assert.equal(new Set(s.cards.map(c=>c.id)).size,CATALOG.length);
@@ -30,6 +35,7 @@ test("external links and ticker/repo identifiers are validated",()=>{
  assert.equal(safeHttp("javascript:alert(1)"),null);
  assert.equal(safeHttp("file:///C:/Users/example/a.txt"),null);
  assert.equal(safeHttp("https://a:b@example.org/"),null);
+ assert.equal(safeHttp("https://example.org/chat?token=secret&tab=1"),"https://example.org/chat?tab=1");
  assert.equal(safeRepo("julian-passebecq/atlasnote"),"julian-passebecq/atlasnote");
  assert.equal(safeRepo("owner/repo?q=bad"),null);
  assert.equal(safeTicker("nvda"),"NVDA");

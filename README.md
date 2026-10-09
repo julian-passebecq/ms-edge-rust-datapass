@@ -90,3 +90,8 @@ Read [dashboard test plan](docs/dashboard/TEST_DASHBOARD.md), [feature acceptanc
 
 ### Boundaries / future integrations
 No OAuth credentials are stored or extracted. Gmail unread counts, exact personal free-tier usage, automatic City calendar subscriptions, local Gemma and browser agents need their own owner-authorized connectors and validation before showing real live data.
+
+### Ma veille en un clic
+En haut du dashboard, **↻ Mes actualités** actualise uniquement les flux des cartes visibles du thème actif. Un clic demande les permissions limitées aux deux domaines publics pertinents, puis interroge au plus trois flux en parallèle, sans surveillance de fond. Les cartes qui échouent restent cliquables vers leurs sources.
+
+The Mentalist includes four **subjective starter suggestions**, not a canonical funniest-episodes ranking (S05E20, S02E19, S02E06, S01E17), each individually removable.

@@ -46,7 +46,15 @@ export const INITIAL_REPOS=[
 ];
 export function clean(value,max=130){return String(value??"").replace(/[\x00-\x1f\x7f]/g," ").trim().slice(0,max);}
 export function safeHttp(raw){
-  try{const u=new URL(raw);return (["https:","http:"].includes(u.protocol)&&!u.username&&!u.password)?u.href:null;}catch{return null;}
+  try{
+    const u=new URL(raw);
+    if(!["https:","http:"].includes(u.protocol)||u.username||u.password)return null;
+    for(const key of [...u.searchParams.keys()]){
+      if(/^(access_token|id_token|refresh_token|token|api_?key|secret|password|code|state|session)$/i.test(key))u.searchParams.delete(key);
+    }
+    if(/access_token|id_token|refresh_token/i.test(u.hash))u.hash="";
+    return u.href;
+  }catch{return null;}
 }
 export function safeRepo(raw){return /^[A-Za-z0-9_.-]{1,80}\/[A-Za-z0-9_.-]{1,100}$/.test(String(raw))?String(raw):null;}
 export function safeTicker(raw){const v=String(raw??"").toUpperCase().trim();return /^[A-Z0-9.^-]{1,16}$/.test(v)?v:null;}
@@ -54,7 +62,12 @@ export function defaultDashboard(){
   return {schemaVersion:1,section:"all",
     cards:CATALOG.map((def,i)=>({id:def.id,visible:!["services"].includes(def.id),span:def.span,order:i})),
     repos:[...INITIAL_REPOS],tickers:["MSFT","NVDA"],
-    episodes:[{id:"s05e20",title:"S05E20 · Red Velvet Cupcakes",note:"Enquête radio et duo Rigsby / Van Pelt",url:"https://thementalist.fandom.com/wiki/Red_Velvet_Cupcakes"}],
+    episodes:[
+      {id:"s05e20",title:"S05E20 · Red Velvet Cupcakes",note:"Rigsby et Van Pelt : une enquête romantique et comique",url:"https://thementalist.fandom.com/wiki/Red_Velvet_Cupcakes"},
+      {id:"s02e19",title:"S02E19 · Blood Money",note:"Jane se représente au tribunal : humour de prétoire",url:"https://tv.apple.com/no/episode/blood-money/umc.cmc.21ndjec049hwagvkhrczyhnk"},
+      {id:"s02e06",title:"S02E06 · Black Gold and Red Blood",note:"Jane derrière les barreaux et ses échanges avec Lisbon",url:"https://www.betaseries.com/episode/thementalist/s02e06"},
+      {id:"s01e17",title:"S01E17 · Carnelian, Inc.",note:"La retraite d’entreprise et les facéties de Jane",url:"https://www.tvguide.com/tvshows/the-mentalist/episodes-season-1/1030857847/"}
+    ],
     fixtures:[]
   };
 }
