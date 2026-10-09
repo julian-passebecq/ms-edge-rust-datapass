@@ -1,4 +1,4 @@
-name: DataPass Edge V1 and Dashboard checks
+name: DataPass Edge V0.3 qualification
 on:
   pull_request:
     branches: [main, feat/edge-sidebar-v1, feat/personal-dashboard-v1]
@@ -20,4 +20,44 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - run: cargo test --manifest-path bridge/Cargo.toml
+      - run: cargo build --release --manifest-path bridge/Cargo.toml
+      - run: node scripts/native-host-smoke.mjs
+  windows-native:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: dtolnay/rust-toolchain@stable
+      - run: npm test
+      - run: npm run check
+      - run: cargo test --manifest-path bridge/Cargo.toml
+      - run: cargo build --release --manifest-path bridge/Cargo.toml
+      - run: node scripts/native-host-smoke.mjs
+  synthetic-browser:
+    if: github.event_name == 'pull_request' && github.head_ref == 'feat/personal-command-center-v2'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated test Chromium and Playwright
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.55.1
+          npx playwright install --with-deps chromium
+      - name: Browser functional and responsive smoke
+        run: node scripts/browser-smoke.mjs
+      - name: Preserve synthetic-only dashboard screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: datapass-edge-synthetic-dashboard
+          path: artifacts/edge-dashboard-synthetic/*.png
+          if-no-files-found: ignore
+          retention-days: 7
