@@ -38,3 +38,12 @@
   .cockpit-row .small-button{padding:7px 8px}
 }
 @media(prefers-reduced-motion:reduce){.mode-tab{transition:none}}
+
+@media(max-width:630px){
+  .topbar{height:auto;min-height:60px;padding:9px 12px;flex-wrap:wrap;gap:5px}
+  .topbar-left{flex:1 1 100%;max-width:100%;min-width:0}
+  .topbar-right{flex:1 1 100%;justify-content:flex-end;min-width:0}
+  .breadcrumb{font-size:9px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .topbar .top-button{font-size:10px;padding:7px 10px}
+  .mode-tabs{min-width:0}
+}

@@ -23,7 +23,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: cargo test --manifest-path bridge/Cargo.toml
+      - run: cargo test --release --manifest-path bridge/Cargo.toml
       - run: cargo build --release --manifest-path bridge/Cargo.toml
       - run: node scripts/native-host-smoke.mjs
   windows-native:
@@ -36,7 +36,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: npm test
       - run: npm run check
-      - run: cargo test --manifest-path bridge/Cargo.toml
+      - run: cargo test --release --manifest-path bridge/Cargo.toml
       - run: cargo build --release --manifest-path bridge/Cargo.toml
       - run: node scripts/native-host-smoke.mjs
   synthetic-browser:

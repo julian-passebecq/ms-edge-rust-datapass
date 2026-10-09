@@ -41,10 +41,12 @@ try{
   const mentalist=page.locator('#cards .card[data-id="mentalist"]');
   assert.equal(await mentalist.count(),1);
   await mentalist.locator('[data-action="hide-card"]').click();
-  assert.equal(await page.locator('#cards .card[data-id="mentalist"]').count(),0);
+  // chrome.storage.local writes and DOM rendering are asynchronous.
+  await page.locator('#cards .card[data-id="mentalist"]').waitFor({state:"detached",timeout:10000});
   await page.locator('#modes [data-mode="deep"]').click();
-  assert.equal(await page.locator('#cards .card[data-id="resume"]').count(),1);
+  await page.locator('#cards .card[data-id="resume"]').waitFor({state:"visible",timeout:10000});
   await page.locator('#modes [data-mode="evening"]').click();
+  await page.waitForFunction(()=>document.querySelector('#modes [data-mode="evening"]')?.getAttribute("aria-pressed")==="true");
   assert.equal(await page.locator('#cards .card[data-id="mentalist"]').count(),0);
   await page.reload({waitUntil:"domcontentloaded"});
   await page.locator("#modes .mode-tab").first().waitFor();
@@ -56,7 +58,7 @@ try{
   const toggle=page.locator('#widget-catalog input[data-id="mentalist"]');
   assert.equal(await toggle.isChecked(),false);
   await toggle.check();
-  assert.equal(await page.locator('#cards .card[data-id="mentalist"]').count(),1);
+  await page.locator('#cards .card[data-id="mentalist"]').waitFor({state:"visible",timeout:10000});
   await page.locator("#save-layout").click();
 
   await page.evaluate(async()=>{
@@ -74,6 +76,11 @@ try{
 
   await page.setViewportSize({width:390,height:844});
   await page.screenshot({path:join(evidence,"05-responsive-mobile.png"),fullPage:true});
+  const geometry=await page.evaluate(()=>({
+    scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth
+  }));
+  assert.ok(geometry.scrollWidth<=geometry.clientWidth+2,
+    "mobile layout should not overflow horizontally: "+JSON.stringify(geometry));
   assert.deepEqual(errors,[],"dashboard should load without JavaScript page errors");
   console.log("PASS synthetic Chromium extension: layouts, persistence, manager, saved-link resume, desktop/mobile screenshots");
 }catch(error){
