@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "DataPass Edge Workspaces & Dashboard",
   "short_name": "DataPass",
-  "version": "0.2.0",
-  "description": "IDE-style workspaces and modular local-first personal dashboard for Edge.",
+  "version": "0.3.0",
+  "description": "Personal Edge dashboard with custom daypart modes, work recovery and opt-in local system diagnostics.",
   "minimum_chrome_version": "116",
   "permissions": [
     "tabs",
@@ -11,7 +11,8 @@
     "sidePanel"
   ],
   "optional_permissions": [
-    "nativeMessaging"
+    "nativeMessaging",
+    "sessions"
   ],
   "action": {
     "default_title": "Open DataPass workspaces"

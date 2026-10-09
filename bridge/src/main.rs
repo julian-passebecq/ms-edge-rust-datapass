@@ -1,18 +1,24 @@
+mod metrics;
 use serde_json::{json, Value};
 use std::io::{self, Read, Write};
 
 const MAX_REQUEST_BYTES: usize = 65536;
 
 fn answer(value: &Value) -> Value {
-    if value.get("op").and_then(Value::as_str) == Some("ping") {
-        json!({
+    match value.get("op").and_then(Value::as_str) {
+        Some("ping") => json!({
             "ok": true,
             "app": "datapass-edge-bridge",
             "version": env!("CARGO_PKG_VERSION"),
-            "capabilities": ["ping"]
-        })
-    } else {
-        json!({"ok": false, "error": "unsupported_operation"})
+            "capabilities": ["ping", "system_snapshot"]
+        }),
+        Some("system_snapshot") => json!({
+            "ok": true,
+            "app": "datapass-edge-bridge",
+            "version": env!("CARGO_PKG_VERSION"),
+            "snapshot": metrics::snapshot()
+        }),
+        _ => json!({"ok": false, "error": "unsupported_operation"})
     }
 }
 
@@ -64,8 +70,13 @@ mod tests {
         assert_eq!(reply["capabilities"][0], "ping");
     }
     #[test]
+    fn ping_declares_read_only_snapshot() {
+        let reply = answer(&json!({"op": "ping"}));
+        assert_eq!(reply["capabilities"][1], "system_snapshot");
+    }
+    #[test]
     fn arbitrary_operations_are_rejected() {
-        for op in ["read_file", "run_command", "upload", "list_files"] {
+        for op in ["read_file", "run_command", "upload", "list_files", "delete_file", "spawn", "shell"] {
             assert_eq!(answer(&json!({"op": op}))["ok"], false);
         }
     }

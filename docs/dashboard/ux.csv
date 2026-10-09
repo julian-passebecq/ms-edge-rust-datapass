@@ -11,3 +11,12 @@ EDGE-UX-009,dev,Repositories,GitHub card,Add/remove repo and optional public las
 EDGE-UX-010,dev,Provider quota,IT quotas card,Open provider consoles,NON CONNECTÉ label no fake numbers,Ordinary external links,No usage data shown
 EDGE-UX-011,all,Quick start,Hero and Quick launcher,New ChatGPT or Claude tab Mongo console,No implicit workspace write or DB creation,Button titles explicit,Local only
 EDGE-UX-012,all,Responsive layout,Desktop and mobile widths,Cards stack at small widths,Readable one-column fallback,No hover-only essential functions,Independent of live feed
+EDGE-UX-013,all,Daypart mode bar,Main dashboard below hero,Switch Mes cartes Matin Deep Work Soir without losing mode edits,Mode explains focus and resets theme to Tout,Native buttons with aria-pressed,Stored V0.2 layout stays Mes cartes
+EDGE-UX-014,all,Per-mode manager,Personnaliser,Hide resize reorder and reset only current mode,Changes survive reload and changing modes,Button move up/down plus draggable cards,Other modes unaffected
+EDGE-UX-015,dev,Resume My Work,Deep Work mode,Resume live tabs and saved project links,Distinguishes open versus saved with no chat content reads,Accessible action buttons,No links = explicit empty state
+EDGE-UX-016,dev,Recently closed Edge tabs,Resume My Work button,Request sessions permission then show eligible closed tabs,Denied unavailable and empty states separate,Named restore buttons,No history scan or automatic restore
+EDGE-UX-017,dev,Galaxy Pulse,Deep Work mode,Manually request public GitHub API and review exact last CI statuses,Private projects UNKNOWN and GitLab unconnected labelled,Citable source run links,No claim of running native sessions
+EDGE-UX-018,dev,My Attention,Matin and Deep Work,Inspect failed and pending latest observed public CI,Unobserved count shown and never falsely all green,Action links to run evidence,Unknown when offline
+EDGE-UX-019,dev,Windows health,Mon PC card,Explicit native permission then one-shot Rust system snapshot,CPU RAM disk and process samples include time and approximate labels,One click with error handling,Missing host says unavailable and no fictitious metric
+EDGE-UX-020,news,Norsk Daily,Matin mode,Manually refresh Norwegian source and open AtlasNote,Source timestamps or unavailable,Keyboard links,No generated study data
+EDGE-UX-021,dev,R&D Discovery,Deep Work mode,Follow curated research links,No hidden automatic collection,Keyboard links,No AI required

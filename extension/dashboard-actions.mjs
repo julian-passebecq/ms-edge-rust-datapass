@@ -1,26 +1,31 @@
-import {CATALOG,defaultDashboard,reviseCard,moveCard,safeTicker,safeRepo,safeHttp,clean,WORKSPACE_KEY} from "./dashboard-data.mjs";
+import {CATALOG,reviseCard,moveCard,reorderCards,resetMode,safeTicker,safeRepo,safeHttp,clean,WORKSPACE_KEY} from "./dashboard-data.mjs";
+import {MODE_LABELS,currentCards} from "./dashboard-presets.mjs";
 import {parseIcs} from "./dashboard-feed.mjs";
 import {addLink,normalizeState} from "./core.mjs";
 const $=id=>document.getElementById(id);
 export function bindDashboardActions(ctx){
   let dragging=null;
-  const dispatch=(act,args,fn)=>ctx.run(()=>fn(args));
   document.addEventListener("click",event=>{
     const b=event.target.closest("[data-action]");if(!b)return;
     const id=b.dataset.id;
     const commands={
       "set-section":()=>ctx.mutate(s=>({...s,section:b.dataset.section})),
+      "set-mode":()=>ctx.mutate(s=>
+        Object.hasOwn(MODE_LABELS,b.dataset.mode)?{...s,mode:b.dataset.mode,section:"all"}:s),
       "hide-card":()=>ctx.mutate(s=>reviseCard(s,id,{visible:false})),
       "move-up":()=>ctx.mutate(s=>moveCard(s,id,-1)),
       "move-down":()=>ctx.mutate(s=>moveCard(s,id,1)),
       "resize-card":()=>ctx.mutate(s=>{
-        const current=s.cards.find(c=>c.id===id);
-        return reviseCard(s,id,{span:(current.span%3)+1});
+        const current=currentCards(s).find(c=>c.id===id);
+        return current?reviseCard(s,id,{span:(current.span%3)+1}):s;
       }),
       "new-chatgpt":()=>chrome.tabs.create({url:"https://chatgpt.com/",active:true}),
       "new-claude":()=>chrome.tabs.create({url:"https://claude.ai/new",active:true}),
       "open-mongo":()=>ctx.open("https://cloud.mongodb.com/"),
       "open-conversation":()=>ctx.open(b.dataset.url),
+      "open-work":()=>ctx.open(b.dataset.url),
+      "restore-session":()=>ctx.restoreClosed(b.dataset.id),
+      "open-selected-workspace":()=>ctx.openSelectedWorkspace(),
       "save-conversation":async()=>{
         const url=safeHttp(b.dataset.url);
         if(!url)throw Error("Lien de conversation non valide.");
@@ -59,6 +64,8 @@ export function bindDashboardActions(ctx){
       "remove-episode":()=>ctx.mutate(s=>({...s,episodes:s.episodes.filter((_,i)=>i!==Number(b.dataset.index))})),
       "import-ics":()=>{$("calendar-file").click();}
     };
+    if(b.dataset.action==="read-closed"){void ctx.readClosed();return;}
+    if(b.dataset.action==="read-system"){void ctx.readSystem();return;}
     if(b.dataset.action==="refresh-feed"){void ctx.refreshFeed(id);return;}
     if(b.dataset.action==="refresh-repos"){void ctx.refreshRepos();return;}
     const fn=commands[b.dataset.action];if(fn)ctx.run(fn);
@@ -70,7 +77,7 @@ export function bindDashboardActions(ctx){
   $("save-layout").addEventListener("click",()=>$("manage-dialog").close());
   $("reset-layout").addEventListener("click",()=>ctx.run(async()=>{
     if(!window.confirm("Réinitialiser seulement les cartes et leur ordre ? Tes favoris restent enregistrés."))return;
-    await ctx.mutate(s=>({...s,cards:defaultDashboard().cards,section:"all"}));
+    await ctx.mutate(s=>resetMode({...s,section:"all"}));
   }));
   $("widget-catalog").addEventListener("change",event=>{
     const target=event.target;
@@ -87,7 +94,7 @@ export function bindDashboardActions(ctx){
     try{
       if(file.size>2000000)throw Error("Fichier calendrier supérieur à 2 Mo.");
       const events=parseIcs(await file.text());
-      if(!events.length)throw Error("Aucun match importable : seuls les horaires UTC et les dates simples sont acceptés. Vérifie la source du .ics.");
+      if(!events.length)throw Error("Aucun match importable : les horaires UTC/IANA doivent être explicites. Vérifie la source du .ics.");
       if(!window.confirm("Importer "+events.length+" événements à la place du calendrier local actuel ?"))return;
       await ctx.mutate(s=>({...s,fixtures:events}));
       ctx.show(events.length+" rencontres importées. Vérifie leurs horaires avec la source officielle.");
@@ -116,10 +123,7 @@ export function bindDashboardActions(ctx){
     event.preventDefault();
     const source=dragging,destination=target.dataset.id;dragging=null;
     ctx.run(()=>ctx.mutate(s=>{
-      const cards=[...s.cards],from=cards.findIndex(c=>c.id===source),to=cards.findIndex(c=>c.id===destination);
-      if(from<0||to<0)return s;
-      const [item]=cards.splice(from,1);cards.splice(to,0,item);
-      return {...s,cards:cards.map((c,i)=>({...c,order:i}))};
+      return reorderCards(s,source,destination);
     }));
   });
   grid.addEventListener("dragend",()=>{

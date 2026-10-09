@@ -95,3 +95,42 @@ No OAuth credentials are stored or extracted. Gmail unread counts, exact persona
 En haut du dashboard, **↻ Mes actualités** actualise uniquement les flux des cartes visibles du thème actif. Un clic demande les permissions limitées aux deux domaines publics pertinents, puis interroge au plus trois flux en parallèle, sans surveillance de fond. Les cartes qui échouent restent cliquables vers leurs sources.
 
 The Mentalist includes four **subjective starter suggestions**, not a canonical funniest-episodes ranking (S05E20, S02E19, S02E06, S01E17), each individually removable.
+
+## Personal Cockpit V0.3 candidate — Matin / Deep Work / Soir
+
+This increment is developed on `feat/personal-command-center-v2`, stacked on the draft personal-dashboard PR. It **does not** fork Edge, move AtlasNote's database, or require any resident agent.
+
+### Mode selector
+Above the widget grid, select **Mes cartes**, **Matin**, **Deep Work**, or **Soir**. Every mode has its own saved card order, visibility, width and reset. **Mes cartes** preserves the exact custom layout from V0.2. New installations open Deep Work; existing V0.2 stored profiles continue in Mes cartes until you choose a mode.
+
+- **Matin:** My Attention, norsk, Norwegian data/IT and BBC news, Manchester City, F1, Gmail, quick launch.
+- **Deep Work:** Resume My Work, Galaxy Pulse, My PC, My Attention, repos/CI and quota links, R&D Discovery, tech news.
+- **Soir:** Manchester City, F1, Netflix, The Mentalist and games.
+All cards remain removable, restorable and sortable in each mode.
+
+### Resume My Work
+Only existing Edge tab metadata and explicitly saved workspace URLs are shown. The extra **Derniers onglets fermés** button requests the optional **sessions** permission only when clicked; closed-tab metadata is not persisted. You can restore an eligible recently closed tab with one click. No ChatGPT/Claude message text, cookies or full browsing history is read. Native Codex and Claude Code terminal sessions are **not connected**.
+
+### Galaxy Pulse / My Attention
+Click **Lire les CI publiques** to grant the existing optional GitHub public API permission and inspect the most recent public Actions workflow for Agent, DiagramCloud, MosaicStudio, AtlasNote, Visual Gallery and Edge Browser (plus selected public repos). The app displays only the observed run result, exact SHA, source link and time of query. Private PM, Brain and Galaxy Hub remain **UNKNOWN/private**; Factory remains a GitLab link with **UNKNOWN CI**. An observed green workflow does not prove the released product is complete. The Attention card summarizes only observed failures/pending runs; empty data is UNKNOWN, not all green.
+
+### Mon PC — optional Rust diagnostics
+Build/reinstall the bridge from this branch and click **Lire mon PC**. Edge requests **nativeMessaging** permission directly from your click. Rust `system_snapshot` returns a one-time, read-only CPU sample, RAM used/available, approximate Edge/Ollama/Docker/Node process RSS and anonymous volume free-space values. There is no background sampling, local file read, shell command or network upload. A detected Ollama process does not prove a model is loaded.
+
+From a PowerShell terminal at repository root (after Rust installation):
+```powershell
+cargo test --manifest-path bridge/Cargo.toml
+cargo build --release --manifest-path bridge/Cargo.toml
+.\scripts\install-native-host.ps1 -ExtensionId "YOUR_REAL_EDGE_EXTENSION_ID"
+```
+Get the ID from `edge://extensions` in your dedicated development profile. If you already registered the earlier ping-only native host, rebuild the binary and run the installer again. The host is started per request and then exits; no service installation is necessary.
+
+### Technical tests
+```powershell
+npm test
+npm run check
+cargo test --manifest-path bridge/Cargo.toml
+```
+For acceptance and manual Windows Edge gates, see [V0.3 contract](docs/cockpit/CONTRACTS.md), [QA](docs/cockpit/TEST_PLAN.md), [resume](docs/cockpit/RESUME.md) and the extended [feature matrix](docs/dashboard/features.csv).
+
+**Privacy:** recently closed tabs and Native Messaging are separately optional. Nothing in this increment sends browser history or Windows metrics to external servers. The existing user-triggered public news and GitHub API requests remain opt-in. Windows RAM/CPU benchmarks are not available from this remote ChatGPT.com session.

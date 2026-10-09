@@ -1,5 +1,5 @@
 # Run from PowerShell after installing the unpacked Edge extension.
-# This registers an opt-in ping-only Native Messaging host for the current user.
+# This registers an opt-in read-only Native Messaging diagnostics host for the current user.
 param(
   [Parameter(Mandatory=$true)]
   [ValidatePattern("^[a-p]{32}$")]
@@ -16,7 +16,7 @@ New-Item -ItemType Directory -Path $Directory -Force | Out-Null
 $ManifestFile = Join-Path $Directory "com.datapass.edgebridge.json"
 $Manifest = @{
   name = "com.datapass.edgebridge"
-  description = "DataPass Edge local diagnostics host (ping only)"
+  description = "DataPass Edge read-only diagnostics host (ping and system_snapshot)"
   type = "stdio"
   path = $Executable
   allowed_origins = @("chrome-extension://$ExtensionId/")

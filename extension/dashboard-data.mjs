@@ -1,8 +1,15 @@
+import {MODE_LABELS,modeDefaultCards,normalizeCards,currentCards,replaceCurrentCards} from "./dashboard-presets.mjs";
 // Local-only dashboard schema. Catalog IDs are stable feature identities.
 export const DASHBOARD_KEY="datapass.edge.personal-dashboard.v1";
 export const WORKSPACE_KEY="datapass.edge.workspaces.v1";
 export const CATALOG=[
   {id:"quick",title:"Lancer",section:"dev",icon:"⌘",kind:"quick",span:2},
+  {id:"resume",title:"Resume My Work",section:"dev",icon:"↳",kind:"resume",span:2},
+  {id:"pulse",title:"Galaxy Pulse",section:"dev",icon:"◉",kind:"pulse",span:2},
+  {id:"system",title:"Mon PC Windows",section:"dev",icon:"▤",kind:"system",span:1},
+  {id:"attention",title:"My Attention",section:"dev",icon:"!",kind:"attention",span:1},
+  {id:"norsk",title:"Norsk Daily",section:"news",icon:"Æ",kind:"norsk",span:1,url:"https://www.nrk.no/",feed:{type:"google",query:"site:nrk.no (nyheter OR teknologi OR samfunn)",lang:"no",country:"NO"}},
+  {id:"discover",title:"R&D Discovery",section:"dev",icon:"◇",kind:"discover",span:1,url:"https://github.com/trending"},
   {id:"tech-no",title:"Data & IT · Norge",section:"news",icon:"⌁",kind:"feed",span:2,url:"https://www.digi.no/",feed:{type:"google",query:"(site:digi.no OR site:kode24.no OR site:tu.no) (data OR IT OR kunstig intelligens)",lang:"no",country:"NO"}},
   {id:"bbc-world",title:"BBC · World",section:"news",icon:"◎",kind:"feed",span:1,url:"https://www.bbc.com/news/world",feed:{type:"rss",url:"https://feeds.bbci.co.uk/news/world/rss.xml"}},
   {id:"bfm",title:"BFM TV",section:"news",icon:"●",kind:"feed",span:1,url:"https://www.bfmtv.com/",feed:{type:"google",query:"site:bfmtv.com",lang:"fr",country:"FR"}},
@@ -37,6 +44,18 @@ export const SERVICE_LINKS=[
   {title:"MongoDB Atlas",url:"https://cloud.mongodb.com/"},
   {title:"Vercel",url:"https://vercel.com/dashboard"}
 ];
+// Public repo URLs are linkable; private project names have no repo address in public source.
+export const GALAXY_TARGETS=[
+  {id:"pm",label:"PM",access:"private"},
+  {id:"agent",label:"Agent",repo:"julian-passebecq/datapass-agent",access:"public"},
+  {id:"brain",label:"Brain",access:"private"},
+  {id:"diagramcloud",label:"DiagramCloud",repo:"julian-passebecq/diagramcloud",access:"public"},
+  {id:"mosaic",label:"MosaicStudio",repo:"julian-passebecq/datapass-mosaicstudio",access:"public"},
+  {id:"atlasnote",label:"AtlasNote",repo:"julian-passebecq/atlasnote",access:"public"},
+  {id:"browser",label:"Edge Browser",repo:"julian-passebecq/ms-edge-rust-datapass",access:"public"},
+  {id:"gallery",label:"Visual Gallery",repo:"julian-passebecq/datapass-visual-gallery",access:"public"},
+  {id:"factory",label:"Factory",url:"https://gitlab.com/juliandatapass-group/datapass-factory",access:"external"}
+];
 export const INITIAL_REPOS=[
   "julian-passebecq/ms-edge-rust-datapass",
   "julian-passebecq/atlasnote",
@@ -59,8 +78,9 @@ export function safeHttp(raw){
 export function safeRepo(raw){return /^[A-Za-z0-9_.-]{1,80}\/[A-Za-z0-9_.-]{1,100}$/.test(String(raw))?String(raw):null;}
 export function safeTicker(raw){const v=String(raw??"").toUpperCase().trim();return /^[A-Z0-9.^-]{1,16}$/.test(v)?v:null;}
 export function defaultDashboard(){
-  return {schemaVersion:1,section:"all",
+  return {schemaVersion:1,section:"all",mode:"deep",
     cards:CATALOG.map((def,i)=>({id:def.id,visible:!["services"].includes(def.id),span:def.span,order:i})),
+    modeLayouts:Object.fromEntries(["morning","deep","evening"].map(mode=>[mode,modeDefaultCards(mode,CATALOG)])),
     repos:[...INITIAL_REPOS],tickers:["MSFT","NVDA"],
     episodes:[
       {id:"s05e20",title:"S05E20 · Red Velvet Cupcakes",note:"Rigsby et Van Pelt : une enquête romantique et comique",url:"https://thementalist.fandom.com/wiki/Red_Velvet_Cupcakes"},
@@ -74,13 +94,12 @@ export function defaultDashboard(){
 export function normalizeDashboard(raw){
   const initial=defaultDashboard();
   if(!raw||raw.schemaVersion!==1)return initial;
-  const entries=new Map((Array.isArray(raw.cards)?raw.cards:[]).filter(x=>x&&typeof x==="object").map(x=>[x.id,x]));
-  const cards=CATALOG.map((d,i)=>{
-    const value=entries.get(d.id);
-    return {id:d.id,visible:value?value.visible!==false:initial.cards[i].visible,
-      span:value&&[1,2,3].includes(value.span)?value.span:d.span,
-      order:value&&Number.isSafeInteger(value.order)&&value.order>=0&&value.order<=10000?value.order:i};
-  }).sort((a,b)=>a.order-b.order).map((v,i)=>({...v,order:i}));
+  // Existing V0.2 profiles have no mode: preserve their custom layout exactly.
+  const mode=Object.hasOwn(MODE_LABELS,raw.mode)?raw.mode:"custom";
+  const cards=normalizeCards(raw.cards,CATALOG,initial.cards);
+  const modeLayouts=Object.fromEntries(["morning","deep","evening"].map(modeId=>[
+    modeId,normalizeCards(raw.modeLayouts?.[modeId],CATALOG,modeDefaultCards(modeId,CATALOG))
+  ]));
   const repos=[...new Set((Array.isArray(raw.repos)?raw.repos:initial.repos).map(safeRepo).filter(Boolean))].slice(0,16);
   const tickers=[...new Set((Array.isArray(raw.tickers)?raw.tickers:initial.tickers).map(safeTicker).filter(Boolean))].slice(0,16);
   const episodes=(Array.isArray(raw.episodes)?raw.episodes:initial.episodes).slice(0,25).map((ep,i)=>({
@@ -90,20 +109,32 @@ export function normalizeDashboard(raw){
   const fixtures=(Array.isArray(raw.fixtures)?raw.fixtures:[]).slice(0,150).map(e=>({
     title:clean(e?.title,120),start:typeof e?.start==="string"?e.start:null,allDay:e?.allDay===true,url:safeHttp(e?.url)
   })).filter(e=>e.title&&e.start&&!Number.isNaN(Date.parse(e.start)));
-  return {schemaVersion:1,section:Object.hasOwn(SECTION_LABELS,raw.section)?raw.section:"all",cards,repos,tickers,episodes,fixtures};
+  return {schemaVersion:1,section:Object.hasOwn(SECTION_LABELS,raw.section)?raw.section:"all",mode,modeLayouts,cards,repos,tickers,episodes,fixtures};
 }
 export function reviseCard(raw,id,update){
-  const s=normalizeDashboard(raw);
-  if(!CATALOG.some(c=>c.id===id))return s;
-  s.cards=s.cards.map(c=>c.id===id?{...c,...update,id}:c);
-  return normalizeDashboard(s);
+  const state=normalizeDashboard(raw);
+  if(!CATALOG.some(c=>c.id===id))return state;
+  const next=currentCards(state).map(c=>c.id===id?{...c,...update,id}:c);
+  return normalizeDashboard(replaceCurrentCards(state,next));
 }
 export function moveCard(raw,id,delta){
-  const s=normalizeDashboard(raw),a=s.cards.findIndex(c=>c.id===id),b=a+delta;
-  if(a<0||b<0||b>=s.cards.length)return s;
-  [s.cards[a],s.cards[b]]=[s.cards[b],s.cards[a]];
-  s.cards=s.cards.map((c,i)=>({...c,order:i}));
-  return s;
+  const state=normalizeDashboard(raw);
+  const cards=[...currentCards(state)],a=cards.findIndex(c=>c.id===id),b=a+delta;
+  if(a<0||b<0||b>=cards.length)return state;
+  [cards[a],cards[b]]=[cards[b],cards[a]];
+  return normalizeDashboard(replaceCurrentCards(state,cards.map((c,i)=>({...c,order:i}))));
+}
+export function reorderCards(raw,fromId,toId){
+  const state=normalizeDashboard(raw);
+  const cards=[...currentCards(state)],from=cards.findIndex(c=>c.id===fromId),to=cards.findIndex(c=>c.id===toId);
+  if(from<0||to<0||from===to)return state;
+  const [item]=cards.splice(from,1);cards.splice(to,0,item);
+  return normalizeDashboard(replaceCurrentCards(state,cards.map((c,i)=>({...c,order:i}))));
+}
+export function resetMode(raw){
+  const state=normalizeDashboard(raw);
+  const defaults=state.mode==="custom"?defaultDashboard().cards:modeDefaultCards(state.mode,CATALOG);
+  return normalizeDashboard(replaceCurrentCards(state,defaults));
 }
 export function feedUrl(feed){
   if(feed.type==="rss")return feed.url;
