@@ -7,7 +7,10 @@
 - Product owner: ms-edge-rust-datapass. Acceptance IDs appended to docs/dashboard/features.csv and ux.csv.
 - Included: per-mode custom layouts; local Resume and explicit recently closed sessions; public-read-only GitHub Pulse/Attention; Rust read-only system snapshot; Norsk/R&D optional widgets.
 - Explicit unavailable: private repo CI from unauthenticated extension; live native CLI/LLM sessions; Windows telemetry in this remote chat.
-- CI: UNKNOWN until run on this exact branch SHA. Historical V0.2 CI is not evidence.
+- Code candidate commit: 9edb63946e8382c2e1aea8292cb0035365f50147.
+- Exact code-head CI: PASS, GitHub Actions run 37939656361 (Ubuntu runner, 22 Node tests passed, 4 Rust tests passed, 25 JavaScript module syntax checks and 12 dashboard module/static/permission checks passed).
+- Current follow-up commit changes documentation only; verify its own exact-head CI before concluding the final branch head is qualified.
+- CI cross-platform pass is NOT Windows/Edge runtime qualification.
 - Manual Windows Edge runtime: NOT OBSERVED. D:\PROJ tree/runner ownership NOT VERIFIED.
 - Merge/deployment: NOT AUTHORIZED; PR remains draft.
 - Next: exact-head Node/Rust CI, then owner's one complete Windows Edge journey.
