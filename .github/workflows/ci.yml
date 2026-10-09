@@ -1,7 +1,7 @@
-name: DataPass Edge V1 checks
+name: DataPass Edge V1 and Dashboard checks
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feat/edge-sidebar-v1]
   workflow_dispatch:
 permissions:
   contents: read

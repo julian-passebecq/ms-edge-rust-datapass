@@ -1,0 +1,13 @@
+ux_id,view,component,entry_point,interaction,feedback,keyboard_and_accessibility,offline_or_denied
+EDGE-UX-001,all,Home dashboard,Edge side-panel dashboard button,Open/reuse dashboard tab,Independent page without disturbing sidebar,Focus on standard buttons,Existing bookmarks/sidebar unaffected
+EDGE-UX-002,all,Card grid,Dashboard main,Drag/drop reorder or move up/down width and hide,Local reorder visible immediately,Move buttons with aria labels,No remote dependencies
+EDGE-UX-003,all,Widget manager,Personaliser,Check and uncheck any topic plus reset layout,Visible counter and persistent setting,Checkbox associated labels and dialog close,Hidden cards restorable
+EDGE-UX-004,news,Norwegian IT,Bouton Actualiser le flux,Request news.google.com origin only after click,Clear fresh/stale and source badges,Native focusable buttons and links,Direct digi.no link on failure
+EDGE-UX-005,news,International,BBC BFM CNN cards,Refresh RSS with permission,Timestamped headlines or explicit unavailable,Links open in new tabs,Direct source fallbacks
+EDGE-UX-006,leisure,Football,City card,Import trusted local .ics with confirmation,Show imported schedule in Oslo zone; unsupported timezone rejected,File chooser keyboard usable,Official fixtures link
+EDGE-UX-007,leisure,Series,Mentalist and Netflix,Store favorites and browse Tudum,Official 3BP dated statement; personal choices remain editable,Buttons and links accessible,Static saved favorites remain
+EDGE-UX-008,dev,Conversation tree,Left navigation,View ChatGPT/Claude saved + live tabs and save open URLs,Projects grouped without message text,Cross-site links activate existing tab,No conversation collection without authorization
+EDGE-UX-009,dev,Repositories,GitHub card,Add/remove repo and optional public last workflow lookup,Show SHA/status or unavailable,Named buttons,Repo links always work
+EDGE-UX-010,dev,Provider quota,IT quotas card,Open provider consoles,NON CONNECTÉ label no fake numbers,Ordinary external links,No usage data shown
+EDGE-UX-011,all,Quick start,Hero and Quick launcher,New ChatGPT or Claude tab Mongo console,No implicit workspace write or DB creation,Button titles explicit,Local only
+EDGE-UX-012,all,Responsive layout,Desktop and mobile widths,Cards stack at small widths,Readable one-column fallback,No hover-only essential functions,Independent of live feed
