@@ -42,13 +42,14 @@
       <button id="restore" title="Open up to eight saved workspace links">Open workspace</button>
     </div>
     <div class="footer-secondary">
-      <button id="export">Export backup</button><button id="import">Import backup</button><button id="bridge">Rust bridge</button>
+      <button id="open-dashboard" title="Open the personal dashboard">◫ Dashboard</button><button id="export">Export backup</button><button id="import">Import backup</button><button id="bridge">Rust bridge</button>
     </div>
     <p>Local URL metadata only · No page scraping · AtlasNote independent</p>
   </footer>
 </main>
 <input id="backup-file" type="file" accept=".json,application/json" hidden>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script type="module" src="dashboard-launch.mjs"></script>
 <script type="module" src="panel.mjs"></script>
 </body>
 </html>

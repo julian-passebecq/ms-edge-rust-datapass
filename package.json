@@ -1,11 +1,11 @@
 {
   "name": "datapass-edge-workspaces",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Zero-dependency Edge MV3 workspace extension and opt-in Rust host",
   "scripts": {
     "test": "node --test",
-    "check": "node scripts/check.mjs"
+    "check": "node scripts/check.mjs && node scripts/check-dashboard.mjs"
   }
 }

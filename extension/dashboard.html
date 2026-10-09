@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>DataPass · Mon dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="dashboard-tweaks.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail" aria-label="Navigation personnelle">
+    <div class="rail-brand"><span class="logo-mark">D</span><span class="brand-type">DATAPASS<small>PERSONAL OS</small></span></div>
+    <div class="rail-section-label">NAVIGATION</div>
+    <nav class="rail-nav" aria-label="Vues"><button class="rail-choice active" data-view="all">◫ <span>Mon dashboard</span></button><button class="rail-choice" data-view="news">◎ <span>Actualités</span></button><button class="rail-choice" data-view="leisure">✦ <span>Loisirs & sport</span></button><button class="rail-choice" data-view="dev">⌘ <span>IT & projets</span></button></nav>
+    <div class="rail-divider"></div>
+    <div class="rail-section-label">CONVERSATIONS <span class="subtle">locales / onglets</span></div>
+    <div class="rail-actions"><button data-action="new-chatgpt" class="rail-mini">+ ChatGPT</button><button data-action="new-claude" class="rail-mini">+ Claude</button></div>
+    <div id="conversation-tree" class="conversation-tree" aria-label="Conversations sauvegardées et ouvertes"></div>
+    <div class="rail-bottom"><button id="open-sidebar" class="rail-choice">▤ <span>Ouvrir la sidebar Edge</span></button><p>Les conversations sont des liens et des onglets. Aucun message privé n'est lu.</p></div>
+  </aside>
+  <div class="body">
+    <header class="topbar">
+      <div class="topbar-left"><button id="toggle-rail" class="header-icon" aria-label="Afficher ou masquer les conversations">☰</button><span class="breadcrumb">GALAXY <span> / </span> PERSONAL DASHBOARD</span></div>
+      <div class="topbar-right"><span id="sync-marker" class="sync-marker"><span class="live-dot"></span> Actualisation manuelle</span><button id="manage" class="top-button">☷ Personnaliser</button></div>
+    </header>
+    <main class="content">
+      <section class="hero">
+        <div><p class="eyebrow">TON ESPACE • LOCAL-FIRST</p><h1>Bonjour <span class="headline-mark">✳</span></h1><p class="hero-desc">L’essentiel de tes projets, de l’actualité et de tes loisirs — à ta façon.</p></div>
+        <div class="hero-quick"><button data-action="new-chatgpt">+ Nouvelle conv. GPT</button><button data-action="new-claude">+ Claude</button><button data-action="open-mongo">+ Mongo Atlas</button></div>
+      </section>
+      <section class="filters" aria-label="Thèmes"><div id="filters" class="filter-tabs"></div><span id="widget-counter" class="widget-counter"></span></section>
+      <section id="cards" class="card-grid" aria-label="Widgets du dashboard"></section>
+      <div id="empty-view" class="empty-view" hidden><h2>Aucune carte visible</h2><p>Réactive un thème depuis Personnaliser.</p><button id="empty-manage">Choisir mes cartes</button></div>
+      <footer class="page-footer"><span>DataPass Edge · les données du dashboard restent dans ce profil Edge</span><span id="data-health">Sources externes uniquement sur demande</span></footer>
+    </main>
+  </div>
+</div>
+<dialog id="manage-dialog" class="manager">
+  <div class="manager-head"><div><p class="eyebrow">PERSONNALISATION</p><h2>Mes encadrés</h2><p>Affiche, masque et redimensionne les widgets. Les changements sont enregistrés localement.</p></div><button id="close-manage" class="dialog-close" aria-label="Fermer">×</button></div>
+  <div id="widget-catalog" class="widget-catalog"></div>
+  <div class="manager-footer"><button id="reset-layout">Réinitialiser la disposition</button><button id="save-layout" class="primary-action">Terminé</button></div>
+</dialog>
+<input type="file" accept=".ics,text/calendar" id="calendar-file" hidden>
+<div id="notice" role="status" aria-live="polite" class="notice" hidden></div>
+<script type="module" src="dashboard.mjs"></script>
+</body>
+</html>

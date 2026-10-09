@@ -58,3 +58,35 @@ AtlasNote stays a separate browser app; its data is origin/profile-scoped. Savin
 **Out of scope for V1:** automated ChatGPT uploads, local Gemma, tab content scraping, process-level RAM readings, Edge profile administration and background agents. These require independent user gates and tests.
 
 MIT-licensed. See [architecture](docs/ARCHITECTURE.md).
+
+## Personal Dashboard — V0.2 candidate
+
+Open the original Edge sidebar and click **◫ Dashboard**. This opens a separate Edge extension tab without changing your default new-tab page.
+
+### Included
+- Modular 3-column card grid, compact theme views, keyboard move buttons, drag ordering, width 1/2/3, hide/restore catalog, and local persistence.
+- News: Norwegian Data/IT (Digi.no, TU and kode24 searches), BBC World, BFM TV, BFM Business, CNN, F1, Netflix/Tudum, Jeuxvideo.com tests.
+- Manchester City: official fixtures shortcut, local ICS import with conservative UTC parsing, upcoming events in Oslo time, and optional current-news search.
+- The Mentalist: editable personal episode favorites; verified starter S05E20 Red Velvet Cupcakes.
+- Yahoo Finance: editable ticker shortcuts, no fake market prices.
+- Gmail: inbox/compose links, no email reading.
+- GitHub: repository shortcuts independent of the conversation tree, optional latest public Actions status.
+- IT quotas: Cloudflare Workers/R2, GitHub Actions, Netlify and MongoDB official billing/usage shortcuts. Usage shown as **not connected**, never a fabricated number.
+- Left conversation navigator: saved ChatGPT and Claude URLs grouped by existing Edge workspace plus open conversation tabs; no message scraping.
+- New ChatGPT/Claude tabs and a MongoDB Atlas console shortcut (does **not** create a database).
+
+### How public feeds work
+Click **Actualiser le flux** on a news card. Edge will request a limited optional host permission for either feeds.bbci.co.uk (original BBC RSS) or news.google.com (search RSS aggregated from selected publications). If the permission is denied, the source times out or there are no recent items, the card explains the failure and still links to the publisher. There is no background feed polling. Public GitHub status uses an optional api.github.com grant on demand.
+
+### Local preferences and profiles
+The dashboard uses chrome.storage.local under a new versioned key. It reads the V1 saved workspace URL metadata without changing the original schema. It does not read any ChatGPT/Claude conversation text, Gmail messages or AtlasNote IndexedDB. This is **not** a replacement for AtlasNote recovery bundles. Dashboard settings are per Edge profile.
+
+### Verify
+    npm test
+    npm run check
+    cargo test --manifest-path bridge/Cargo.toml
+
+Read [dashboard test plan](docs/dashboard/TEST_DASHBOARD.md), [feature acceptance](docs/dashboard/features.csv), [UX matrix](docs/dashboard/ux.csv) and [contract](docs/dashboard/CONTRACT.md). CI alone does not prove Windows Edge runtime behavior.
+
+### Boundaries / future integrations
+No OAuth credentials are stored or extracted. Gmail unread counts, exact personal free-tier usage, automatic City calendar subscriptions, local Gemma and browser agents need their own owner-authorized connectors and validation before showing real live data.

@@ -1,0 +1,26 @@
+feature_id,version,area,feature,acceptance,status,dependency
+EDGE-DASH-001,V1,layout,Dashboard as Edge extension tab,"Open from existing sidebar; no new browser engine",IMPLEMENTED_PENDING_WINDOWS,EDGE-001
+EDGE-DASH-002,V1,layout,Resizable removable reorderable cards,"Hide restore width 1-3 and drag or keyboard reorder persist locally",IMPLEMENTED_PENDING_WINDOWS,EDGE-DASH-001
+EDGE-DASH-003,V1,layout,Topic filtering,"All News Leisure Development filters with consistent counts",IMPLEMENTED_PENDING_WINDOWS,EDGE-DASH-002
+EDGE-DASH-004,V1,news,Norwegian data and IT headlines,"Optional Google News RSS with digi.no kode24.no TU selection and source attribution",IMPLEMENTED_PENDING_LIVE,EDGE-DASH-010
+EDGE-DASH-005,V1,news,BBC BFM BFM Business CNN,"BBC original RSS; other sources via Google News or direct links; no stale CNN official RSS",IMPLEMENTED_PENDING_LIVE,EDGE-DASH-010
+EDGE-DASH-006,V1,sport,Manchester City,"Official fixture shortcut; opt-in ICS import; upcoming match display Oslo timezone; date validation",IMPLEMENTED_PENDING_WINDOWS,EDGE-DASH-011
+EDGE-DASH-007,V1,sport,Formula 1,"Optional BBC F1 RSS headlines and official Formula 1 link",IMPLEMENTED_PENDING_LIVE,EDGE-DASH-010
+EDGE-DASH-008,V1,entertainment,Netflix series and 3 Body Problem,"Confirmed original Tudum announcement plus optional headlines; no fabricated release date",IMPLEMENTED_PENDING_LIVE,EDGE-DASH-010
+EDGE-DASH-009,V1,entertainment,Mentalist funniest episodes favorites,"Editable per-user saved episode list and a verified S05E20 example",IMPLEMENTED_PENDING_WINDOWS,EDGE-DASH-001
+EDGE-DASH-010,V1,news,Manual source permission and freshness,"No unsolicited background fetch; only allowlisted optional hosts and explicit per-widget refresh",IMPLEMENTED_PENDING_LIVE,EDGE-DASH-001
+EDGE-DASH-011,V1,data,Validated local models and ICS,"Versioned local storage; strict IDs; UTC ICS; unsupported TZID skipped; test coverage",IMPLEMENTED_PENDING_TEST,EDGE-DASH-001
+EDGE-DASH-012,V1,entertainment,Jeuxvideo.com tests,"Topical feed via Google News and direct tests link with source status",IMPLEMENTED_PENDING_LIVE,EDGE-DASH-010
+EDGE-DASH-013,V1,finance,Yahoo Finance,"Editable ticker watchlist opens Yahoo; never invent stock prices",IMPLEMENTED_PENDING_WINDOWS,EDGE-DASH-001
+EDGE-DASH-014,V1,mail,Gmail shortcuts,"Inbox and compose from existing Edge session; label unconnected unread counts",IMPLEMENTED_PENDING_WINDOWS,EDGE-DASH-001
+EDGE-DASH-015,V1,dev,GitHub repository cards,"Pinned repo links separate from conversation tree; opt-in public latest run SHA/status",IMPLEMENTED_PENDING_LIVE,EDGE-DASH-010
+EDGE-DASH-016,V1,dev,Free tier quota consoles,"GitHub Actions Cloudflare R2 Netlify MongoDB links; account usage UNKNOWN without adapter",IMPLEMENTED_PENDING_WINDOWS,EDGE-DASH-001
+EDGE-DASH-017,V1,conversation,ChatGPT Claude local tree,"Group saved links and active tabs by source/workspace; no message scraping; quick new chat buttons",IMPLEMENTED_PENDING_WINDOWS,EDGE-001
+EDGE-DASH-018,V1,shortcuts,Power Ring style launcher,"Explicit shortcuts new ChatGPT Claude Mongo Atlas GitHub Cloudflare; no Mongo database creation",IMPLEMENTED_PENDING_WINDOWS,EDGE-DASH-001
+EDGE-DASH-019,V1,privacy,AtlasNote preservation,"Standalone AtlasNote; URLs only; no IndexedDB extraction or cross-origin access",IMPLEMENTED_PENDING_WINDOWS,EDGE-001
+EDGE-DASH-020,V2,mail,Gmail unread metadata,"Owner OAuth client consent least-privilege scopes explicit; verification before display",NOT_STARTED,EDGE-DASH-014
+EDGE-DASH-021,V2,quotas,Authenticated provider usage adapters,"Permissioned official Cloudflare GitHub Netlify APIs and account scopes; exact usage or UNKNOWN",NOT_STARTED,EDGE-DASH-016
+EDGE-DASH-022,V2,sport,Verified live fixture feed,"Trusted official iCal subscription or approved provider with refresh and timezone verification",NOT_STARTED,EDGE-DASH-006
+EDGE-DASH-023,V2,automation,Page and widget alerts,"Explicit schedule/condition and supported OS service only; default OFF",NOT_STARTED,EDGE-DASH-010
+EDGE-DASH-024,V3,local-ai,Small on-demand Gemma classification,"Measure memory with optional model and fail closed; no auto upload",NOT_STARTED,EDGE-DASH-017
+EDGE-DASH-025,V4,privacy,Silent extraction of full ChatGPT/Claude history,"Parked: authenticated provider APIs or explicit user export and authorization required",PARKED_SECURITY_BOUNDARY,EDGE-DASH-017
