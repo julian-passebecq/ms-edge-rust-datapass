@@ -5,18 +5,20 @@ import {
  safeRepo,safeTicker,feedUrl
 } from "../extension/dashboard-data.mjs";
 import {isoFromIcs,parseIcs,latestAvailable} from "../extension/dashboard-feed.mjs";
+import {currentCards} from "../extension/dashboard-presets.mjs";
 import {providerFor,conversationGroups} from "../extension/dashboard-tree.mjs";
 test("catalog contains all requested subjects with unique stable IDs",()=>{
  const required=["quick","tech-no","bbc-world","bfm","bfm-business","cnn","city","f1","netflix",
  "mentalist","gaming","finance","gmail","repos","quota","services"];
- assert.deepEqual(CATALOG.map(c=>c.id),required);
+ assert.deepEqual(CATALOG.filter(c=>required.includes(c.id)).map(c=>c.id),required);
+ for(const id of ["resume","pulse","system","attention","norsk","discover"])assert.ok(CATALOG.some(c=>c.id===id));
  assert.equal(new Set(CATALOG.map(c=>c.id)).size,CATALOG.length);
 });
 test("layout hides/restores cards and persists widths safely",()=>{
  const start=defaultDashboard();
  const hidden=reviseCard(start,"cnn",{visible:false,span:3});
- assert.equal(hidden.cards.find(c=>c.id==="cnn").visible,false);
- assert.equal(hidden.cards.find(c=>c.id==="cnn").span,3);
+ assert.equal(currentCards(hidden).find(c=>c.id==="cnn").visible,false);
+ assert.equal(currentCards(hidden).find(c=>c.id==="cnn").span,3);
  assert.equal(normalizeDashboard({...hidden,cards:[{id:"malicious",visible:true,span:200},...hidden.cards]}).cards.length,CATALOG.length);
  assert.equal(normalizeDashboard({schemaVersion:2}).schemaVersion,1);
  assert.equal(start.cards.find(c=>c.id==="cnn").visible,true);
@@ -27,9 +29,11 @@ test("Mentalist suggestions include four subjective, independently labelled epis
  for(const ep of eps)assert.equal(new URL(ep.url).protocol,"https:");
 });
 test("keyboard widget reordering leaves stable distinct IDs",()=>{
- const s=moveCard(defaultDashboard(),"bfm",1);
+ const origin={...defaultDashboard(),mode:"custom"};
+ const before=origin.cards.find(c=>c.id==="bfm").order;
+ const s=moveCard(origin,"bfm",1);
  assert.equal(new Set(s.cards.map(c=>c.id)).size,CATALOG.length);
- assert.equal(s.cards.find(c=>c.id==="bfm").order,4);
+ assert.equal(s.cards.find(c=>c.id==="bfm").order,before+1);
 });
 test("external links and ticker/repo identifiers are validated",()=>{
  assert.equal(safeHttp("javascript:alert(1)"),null);

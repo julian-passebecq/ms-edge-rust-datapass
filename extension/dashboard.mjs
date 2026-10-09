@@ -1,16 +1,23 @@
-import {CATALOG,DASHBOARD_KEY,WORKSPACE_KEY,defaultDashboard,normalizeDashboard,feedUrl,safeHttp} from "./dashboard-data.mjs";
+import {CATALOG,GALAXY_TARGETS,DASHBOARD_KEY,WORKSPACE_KEY,defaultDashboard,normalizeDashboard,feedUrl,safeHttp} from "./dashboard-data.mjs";
 import {initialState,normalizeState} from "./core.mjs";
 import {requestSource,fetchPublicFeed,fetchRepositoryStatus} from "./dashboard-feed.mjs";
 import {renderDashboard} from "./dashboard-render.mjs";
 import {renderTree} from "./dashboard-tree.mjs";
 import {bindDashboardActions} from "./dashboard-actions.mjs";
+import {currentCards} from "./dashboard-presets.mjs";
+import {normalizedClosedSessions} from "./dashboard-recovery.mjs";
 
 let state=defaultDashboard(),workspaces=initialState(),tabs=[],queue=Promise.resolve();
 const feeds=new Map(),errors=new Map(),loading=new Set(),repos=new Map();
+let closedSessions=[],closedStatus="not-requested";
+const system={snapshot:null,error:null,loading:false};
 const ctx={
   get state(){return state;},get workspaces(){return workspaces;},
-  get tabs(){return tabs;},feeds,errors,loading,repos,
-  mutate,refreshFeed,refreshVisible,refreshRepos,reloadWorkspaces,run,show,open
+  get tabs(){return tabs;},
+  get closedSessions(){return closedSessions;},get closedStatus(){return closedStatus;},
+  system,feeds,errors,loading,repos,
+  mutate,refreshFeed,refreshVisible,refreshRepos,reloadWorkspaces,run,show,open,
+  readClosed,restoreClosed,readSystem,openSelectedWorkspace
 };
 function show(message){
   const bar=document.getElementById("notice");
@@ -39,13 +46,13 @@ async function mutate(change){
 }
 async function reloadWorkspaces(){
   const stored=(await chrome.storage.local.get(WORKSPACE_KEY))[WORKSPACE_KEY];
-  workspaces=normalizeState(stored);renderTree(workspaces,tabs);
+  workspaces=normalizeState(stored);render();
 }
 async function refreshTabs(){
   tabs=(await chrome.tabs.query({currentWindow:true}))
     .filter(tab=>safeHttp(tab.url))
     .sort((a,b)=>(a.index??0)-(b.index??0));
-  renderTree(workspaces,tabs);
+  render();
 }
 async function open(raw){
   const url=safeHttp(raw);
@@ -75,7 +82,7 @@ async function refreshFeed(id){
 }
 async function refreshVisible(){
   if(loading.has("bulk"))return;
-  const cards=new Set(state.cards.filter(c=>c.visible&&
+  const cards=new Set(currentCards(state).filter(c=>c.visible&&
     (state.section==="all"||CATALOG.find(d=>d.id===c.id)?.section===state.section)).map(c=>c.id));
   const defs=CATALOG.filter(d=>d.feed&&cards.has(d.id));
   if(!defs.length){show("Aucun flux d'actualités visible dans cette vue.");return;}
@@ -112,14 +119,87 @@ async function refreshRepos(){
   loading.add("repos");errors.delete("repos");render();
   try{
     if(!await permission)throw Error("Autorisation GitHub refusée.");
-    const list=state.repos.slice(0,8);
-    for(const repo of list){
-      try{repos.set(repo,await fetchRepositoryStatus(repo));}
-      catch(error){repos.set(repo,{status:"indisponible",url:null,sha:null});console.warn("Repo status",repo,error);}
+    const publicTargets=GALAXY_TARGETS.filter(p=>p.access==="public").map(p=>p.repo);
+    const list=[...new Set([...publicTargets,...state.repos])].slice(0,12);
+    let cursor=0;
+    async function worker(){
+      while(cursor<list.length){
+        const repo=list[cursor++];
+        try{repos.set(repo,await fetchRepositoryStatus(repo));}
+        catch(error){
+          repos.set(repo,{status:"indisponible",url:null,sha:null});
+          console.warn("Public repo CI unavailable",repo,error);
+        }
+      }
     }
+    await Promise.all(Array.from({length:Math.min(3,list.length)},()=>worker()));
     show("GitHub : statuts des derniers workflows publics consultés.");
   }catch(error){errors.set("repos",error.message||String(error));}
   finally{loading.delete("repos");render();}
+}
+async function readClosed(){
+  if(closedStatus==="loading")return;
+  // Request from direct button gesture; only current profile's recently closed metadata.
+  const permission=chrome.permissions.request({permissions:["sessions"]});
+  closedStatus="loading";render();
+  try{
+    if(!await permission){closedStatus="denied";show("Permission sessions non accordée.");return;}
+    const entries=await chrome.sessions.getRecentlyClosed({maxResults:25});
+    closedSessions=normalizedClosedSessions(entries);
+    closedStatus="ready";
+    show(closedSessions.length+" onglets de travail récemment fermés accessibles.");
+  }catch(error){
+    closedStatus="unavailable";show("Historique récent Edge indisponible : "+error.message);
+  }finally{render();}
+}
+async function restoreClosed(id){
+  const item=closedSessions.find(s=>s.sessionId===id);
+  if(!item)throw Error("Cette session n'est plus disponible.");
+  await chrome.sessions.restore(item.sessionId);
+  closedSessions=closedSessions.filter(s=>s.sessionId!==id);
+  await refreshTabs();
+}
+function validatedSnapshot(raw){
+  if(!raw||typeof raw!=="object")throw Error("Format de diagnostic inattendu.");
+  const max=2**60;
+  const count=value=>Number.isFinite(value)&&value>=0&&value<max?value:null;
+  const groups=new Set(["Edge","Ollama","Docker","Node"]);
+  const processes=(Array.isArray(raw.processes)?raw.processes:[]).filter(p=>groups.has(p?.label))
+    .slice(0,4).map(p=>({label:p.label,count:count(p.count)??0,residentBytes:count(p.residentBytes)}));
+  const disks=(Array.isArray(raw.disks)?raw.disks:[]).slice(0,3)
+    .map(d=>({availableBytes:count(d?.availableBytes),totalBytes:count(d?.totalBytes)}));
+  return {platform:String(raw.platform||"unknown").slice(0,20),
+    observedAtMs:count(raw.observedAtMs),
+    cpuPercent:Number.isFinite(raw.cpuPercent)&&raw.cpuPercent>=0&&raw.cpuPercent<=100?
+      raw.cpuPercent:null,
+    memory:{totalBytes:count(raw.memory?.totalBytes),usedBytes:count(raw.memory?.usedBytes),
+      availableBytes:count(raw.memory?.availableBytes)},
+    processes,disks};
+}
+async function readSystem(){
+  if(system.loading)return;
+  // Single opt-in request: Edge spawns Rust host once; no daemon or polling.
+  const permission=chrome.permissions.request({permissions:["nativeMessaging"]});
+  system.loading=true;system.error=null;render();
+  try{
+    if(!await permission)throw Error("Permission Native Messaging refusée.");
+    const response=await chrome.runtime.sendNativeMessage("com.datapass.edgebridge",{op:"system_snapshot"});
+    if(!response?.ok||response.app!=="datapass-edge-bridge")
+      throw Error("Host non disponible ou trop ancien ; reconstruis le bridge Rust.");
+    system.snapshot=validatedSnapshot(response.snapshot);
+    show("Diagnostic local terminé. Aucun transfert réseau.");
+  }catch(error){
+    system.error=error?.message||String(error);
+    show("Diagnostic PC indisponible : "+system.error);
+  }finally{system.loading=false;render();}
+}
+async function openSelectedWorkspace(){
+  const active=workspaces.projects.find(p=>p.id===workspaces.activeProjectId);
+  if(!active?.links.length)throw Error("Aucun lien dans ce workspace.");
+  const links=active.links.slice(0,6);
+  if(!window.confirm("Ouvrir jusqu'à "+links.length+" onglets du workspace "+active.name+" ?"))return;
+  for(const link of links)await open(link.url);
+  await refreshTabs();
 }
 async function start(){
   const saved=await chrome.storage.local.get([DASHBOARD_KEY,WORKSPACE_KEY]);
@@ -131,7 +211,7 @@ async function start(){
   chrome.storage.onChanged.addListener((changes,area)=>{
     if(area!=="local")return;
     if(changes[DASHBOARD_KEY]){state=normalizeDashboard(changes[DASHBOARD_KEY].newValue);render();}
-    if(changes[WORKSPACE_KEY]){workspaces=normalizeState(changes[WORKSPACE_KEY].newValue);renderTree(workspaces,tabs);}
+    if(changes[WORKSPACE_KEY]){workspaces=normalizeState(changes[WORKSPACE_KEY].newValue);render();}
   });
   let timer;
   const changed=()=>{clearTimeout(timer);timer=setTimeout(()=>void run(refreshTabs),180);};

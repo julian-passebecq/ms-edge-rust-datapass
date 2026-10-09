@@ -1,9 +1,10 @@
 [package]
 name = "datapass-edge-bridge"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Opt-in local Native Messaging host for DataPass Edge"
 publish = false
 
 [dependencies]
 serde_json = "1.0"
+sysinfo = "0.39"

@@ -1,8 +1,17 @@
 import {CATALOG,SECTION_LABELS} from "./dashboard-data.mjs";
+import {MODE_LABELS,MODE_DESCRIPTIONS,currentCards} from "./dashboard-presets.mjs";
 import {node,action,external} from "./dashboard-dom.mjs";
 import {renderCardBody} from "./dashboard-views.mjs";
 const $=id=>document.getElementById(id);
 export function renderDashboard(ctx){
+  const modes=$("modes");modes.replaceChildren();
+  for(const [id,label] of Object.entries(MODE_LABELS)){
+    const b=action(label,"set-mode",{mode:id},"mode-tab"+(ctx.state.mode===id?" active":""));
+    b.setAttribute("aria-pressed",String(ctx.state.mode===id));
+    b.title=MODE_DESCRIPTIONS[id]||"";
+    modes.append(b);
+  }
+  $("mode-explainer").textContent=MODE_DESCRIPTIONS[ctx.state.mode]||"Disposition personnelle";
   const filters=$("filters");filters.replaceChildren();
   for(const [id,label] of Object.entries(SECTION_LABELS)){
     const btn=action(label,"set-section",{section:id},"filter-tab"+(ctx.state.section===id?" active":""));
@@ -12,7 +21,7 @@ export function renderDashboard(ctx){
   for(const element of document.querySelectorAll("[data-view]")){
     element.classList.toggle("active",element.dataset.view===ctx.state.section);
   }
-  const selected=ctx.state.cards.filter(c=>c.visible&&
+  const selected=currentCards(ctx.state).filter(c=>c.visible&&
     (ctx.state.section==="all"||CATALOG.find(d=>d.id===c.id)?.section===ctx.state.section));
   $("widget-counter").textContent=selected.length+" encadrés actifs";
   const grid=$("cards");grid.replaceChildren();
@@ -40,7 +49,9 @@ export function renderDashboard(ctx){
     body.append(renderCardBody(def,ctx));
     element.append(body);
     const footer=node("footer","card-footer");
-    const source=def.feed?(def.feed.type==="rss"?"Flux RSS BBC":"Flux Google News · sur demande"):"Raccourcis locaux";
+    const source=def.kind==="system"?"Rust · opt-in / local":def.kind==="pulse"?"CI publique · clic manuel":
+      def.kind==="resume"?"Métadonnées de navigation · local":def.feed?
+      (def.feed.type==="rss"?"Flux RSS BBC":"Google News · sur demande"):"Local / raccourcis";
     footer.append(node("span","",source));
     if(def.url)footer.append(external(def.url,"Ouvrir la source ↗"));
     element.append(footer);
@@ -56,7 +67,7 @@ export function renderDashboard(ctx){
 function renderCatalog(ctx){
   const target=$("widget-catalog");target.replaceChildren();
   for(const def of CATALOG){
-    const card=ctx.state.cards.find(c=>c.id===def.id),row=node("div","catalog-row");
+    const card=currentCards(ctx.state).find(c=>c.id===def.id),row=node("div","catalog-row");
     const check=node("input");check.type="checkbox";check.checked=card?.visible??false;
     check.dataset.action="toggle-card";check.dataset.id=def.id;check.id="catalog-"+def.id;
     const label=node("label","",def.title);label.htmlFor=check.id;

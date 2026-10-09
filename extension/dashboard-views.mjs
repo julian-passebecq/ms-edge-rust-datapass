@@ -1,3 +1,4 @@
+import {renderCockpit} from "./dashboard-views-cockpit.mjs";
 import {SHORTCUTS,SERVICE_LINKS,safeTicker} from "./dashboard-data.mjs";
 import {latestAvailable} from "./dashboard-feed.mjs";
 import {node,action,external,paragraph,rowList,newsList,capsule} from "./dashboard-dom.mjs";
@@ -127,6 +128,14 @@ function quickView(){
 export function renderCardBody(def,ctx){
   switch(def.kind){
     case "quick":return quickView();
+    case "resume":case "pulse":case "attention":case "system":case "discover":
+      return renderCockpit(def,ctx);
+    case "norsk":{
+      const body=feedView(def,ctx);
+      body.append(actions(external("https://www.nrk.no/","NRK · lire en norsk","small-button"),
+        external("https://github.com/julian-passebecq/atlasnote","AtlasNote · notes","small-button")));
+      return body;
+    }
     case "feed":return feedView(def,ctx);
     case "city":return cityView(def,ctx);
     case "netflix":return netflixView(def,ctx);
