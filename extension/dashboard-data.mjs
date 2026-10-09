@@ -75,7 +75,7 @@ export function normalizeDashboard(raw){
     title:clean(ep?.title,120),note:clean(ep?.note,200),url:safeHttp(ep?.url)||null
   })).filter(ep=>ep.title);
   const fixtures=(Array.isArray(raw.fixtures)?raw.fixtures:[]).slice(0,150).map(e=>({
-    title:clean(e?.title,120),start:typeof e?.start==="string"?e.start:null,url:safeHttp(e?.url)
+    title:clean(e?.title,120),start:typeof e?.start==="string"?e.start:null,allDay:e?.allDay===true,url:safeHttp(e?.url)
   })).filter(e=>e.title&&e.start&&!Number.isNaN(Date.parse(e.start)));
   return {schemaVersion:1,section:Object.hasOwn(SECTION_LABELS,raw.section)?raw.section:"all",cards,repos,tickers,episodes,fixtures};
 }

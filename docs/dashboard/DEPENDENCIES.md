@@ -8,7 +8,7 @@
 | CNN | Google News domain-limited query; old CNN RSS feeds frozen | Optional news.google.com origin | CNN World |
 | Netflix / 3 Body Problem | Netflix Tudum official November 2025 announcement + Google News headlines | Optional Google News; Tudum direct | Official Tudum article |
 | Jeuxvideo.com tests | jeuxvideo.com/tests.htm + Google News targeted search | Optional Google News | JVC tests |
-| Manchester City | mancity.com/fixtures official; local .ics file supplied by user | File chooser only | Official fixture page |
+| Manchester City | mancity.com/fixtures official; local .ics file supplied by user | Local ICS file chooser only; UTC or IANA TZID with DST checks | Official fixture page |
 | Yahoo Finance | User watchlist ticker links | No API | Yahoo Finance site |
 | Gmail | Gmail inbox / compose links in existing Edge profile | No API or permission | Account sign-in in Gmail |
 | GitHub repos and CI | api.github.com public latest Actions runs | Optional api.github.com origin | Repo / Actions links; UNKNOWN |

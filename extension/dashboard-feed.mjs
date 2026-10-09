@@ -59,11 +59,36 @@ export async function fetchRepositoryStatus(repo){
     }:{status:"no-runs",sha:null,name:null,url:null,observedAt:new Date().toISOString()};
   }finally{clearTimeout(timer);}
 }
-export function isoFromIcs(raw){
+function zonedToIso(value,zone){
+  try{
+    const utc=Date.UTC(Number(value.slice(0,4)),Number(value.slice(4,6))-1,Number(value.slice(6,8)),
+      Number(value.slice(9,11)),Number(value.slice(11,13)),Number(value.slice(13,15)));
+    if(Number.isNaN(utc))return null;
+    const formatter=new Intl.DateTimeFormat("en-GB",{timeZone:zone,
+      year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",
+      hourCycle:"h23"});
+    const key=date=>{
+      const parts=Object.fromEntries(formatter.formatToParts(date).map(p=>[p.type,p.value]));
+      return parts.year+parts.month+parts.day+"T"+parts.hour+parts.minute+parts.second;
+    };
+    let guess=utc;
+    for(let i=0;i<3;i++){
+      const seen=key(new Date(guess));
+      const offset=Date.UTC(Number(seen.slice(0,4)),Number(seen.slice(4,6))-1,Number(seen.slice(6,8)),
+        Number(seen.slice(9,11)),Number(seen.slice(11,13)),Number(seen.slice(13,15)))-utc;
+      if(offset===0)break;
+      guess-=offset;
+    }
+    if(key(new Date(guess))!==value)return null; // invalid DST gap or unknown mapping
+    if(key(new Date(guess-3600000))===value||key(new Date(guess+3600000))===value)return null;
+    return new Date(guess).toISOString();
+  }catch{return null;}
+}
+export function isoFromIcs(raw,timeZone=null){
   if(typeof raw!=="string")return null;
   const value=raw.trim();
   if(/^\d{8}$/.test(value)){
-    const out=value.slice(0,4)+"-"+value.slice(4,6)+"-"+value.slice(6,8)+"T12:00:00.000Z";
+    const out=value.slice(0,4)+"-"+value.slice(4,6)+"-"+value.slice(6,8)+"T00:00:00.000Z";
     return Number.isNaN(Date.parse(out))?null:out;
   }
   if(/^\d{8}T\d{6}Z$/.test(value)){
@@ -71,7 +96,8 @@ export function isoFromIcs(raw){
       value.slice(9,11)+":"+value.slice(11,13)+":"+value.slice(13,15)+".000Z";
     return Number.isNaN(Date.parse(out))?null:out;
   }
-  // Floating/local and TZID times require timezone disambiguation; never guess.
+  if(/^\d{8}T\d{6}$/.test(value)&&timeZone)return zonedToIso(value,timeZone.replace(/^\//,""));
+  // An unqualified floating local time is ambiguous: reject it.
   return null;
 }
 export function parseIcs(text){
@@ -92,10 +118,14 @@ export function parseIcs(text){
     const value=line.slice(separator+1).replace(/\\[nN]/g," ").replace(/\\[,;]/g,match=>match.slice(1));
     if(key==="SUMMARY")item.title=clean(value,120);
     if(key==="URL")item.url=safeHttp(value);
-    if(key==="DTSTART"||key==="DTSTART;VALUE=DATE")item.start=isoFromIcs(value);
+    if(key==="DTSTART"||key.startsWith("DTSTART;")){
+      const tz=key.match(/TZID=([^;]+)/i)?.[1]||null;
+      item.allDay=/^\d{8}$/.test(value);
+      item.start=isoFromIcs(value,tz);
+    }
   }
   return result.slice(0,150).sort((a,b)=>Date.parse(a.start)-Date.parse(b.start));
 }
 export function latestAvailable(fixtures,now=Date.now()){
-  return fixtures.filter(e=>Date.parse(e.start)>=now-3600000).sort((a,b)=>Date.parse(a.start)-Date.parse(b.start)).slice(0,4);
+  return fixtures.filter(e=>Date.parse(e.start)+(e.allDay?86400000:3600000)>=now).sort((a,b)=>Date.parse(a.start)-Date.parse(b.start)).slice(0,4);
 }

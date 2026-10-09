@@ -27,4 +27,4 @@ Required Manifest V3: tabs/storage/sidePanel from V1. Optional: nativeMessaging,
 - CSV acceptance is not test evidence. Source-level Node/Cargo gates plus Windows Edge user journey required.
 
 ## Safety
-No cross-origin cookie access, no arbitrary sites or arbitrary URL fetch, no proxy forwarding private content, no uncontrolled background polling, no automatic uploads, no cloud API key storage, no MongoDB database mutation. Imported ICS is user-selected and capped at 2MB; no guessed local/TZID timestamps. All external links validated HTTP(S), DOM built by textContent.
+No cross-origin cookie access, no arbitrary sites or arbitrary URL fetch, no proxy forwarding private content, no uncontrolled background polling, no automatic uploads, no cloud API key storage, no MongoDB database mutation. Imported ICS is user-selected and capped at 2MB; IANA TZID conversion for unambiguous times, with DST-gap/repeated-hour rejection; no guessed floating timestamps or all-day kickoff hours. All external links validated HTTP(S), DOM built by textContent.

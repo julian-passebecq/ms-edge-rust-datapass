@@ -43,15 +43,19 @@ test("news feeds point only at intended public origins",()=>{
    assert.equal(new URL(feedUrl(def.feed)).origin,"https://news.google.com");
  }
 });
-test("calendar import supports UTC with correct absolute times, not guessed TZID",()=>{
+test("calendar import supports UTC, IANA TZID and all-day dates without invented times",()=>{
  assert.equal(isoFromIcs("20261011T153000Z"),"2026-10-11T15:30:00.000Z");
  assert.equal(isoFromIcs("20261011T153000"),null);
+ assert.equal(isoFromIcs("20261011T153000","Europe/London"),"2026-10-11T14:30:00.000Z");
+ assert.equal(isoFromIcs("20261111T153000","Europe/London"),"2026-11-11T15:30:00.000Z");
+ assert.equal(isoFromIcs("20261011"),"2026-10-11T00:00:00.000Z");
  const calendar="BEGIN:VCALENDAR\nBEGIN:VEVENT\nSUMMARY:Liverpool - Manchester City\nDTSTART:20261011T153000Z\nEND:VEVENT\nBEGIN:VEVENT\nSUMMARY:Unsupported local\nDTSTART;TZID=Europe/London:20261018T143000\nEND:VEVENT\nEND:VCALENDAR";
  const events=parseIcs(calendar);
- assert.equal(events.length,1);
+ assert.equal(events.length,2);
+ assert.equal(events[1].start,"2026-10-18T13:30:00.000Z");
  assert.equal(events[0].title,"Liverpool - Manchester City");
- assert.equal(latestAvailable(events,Date.parse("2026-10-10T00:00:00Z")).length,1);
- assert.equal(latestAvailable(events,Date.parse("2026-10-12T00:00:00Z")).length,0);
+ assert.equal(latestAvailable(events,Date.parse("2026-10-10T00:00:00Z")).length,2);
+ assert.equal(latestAvailable(events,Date.parse("2026-10-12T00:00:00Z")).length,1);
 });
 test("conversation tree selects only ChatGPT and Claude saved links or open tabs",()=>{
  assert.equal(providerFor("https://chatgpt.com/c/123"),"ChatGPT");

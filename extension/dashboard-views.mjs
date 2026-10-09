@@ -19,7 +19,8 @@ function cityView(def,ctx){
     for(const item of upcoming){
       const li=node("li","fixture-item");
       li.append(node("div","favourite-episode",item.title));
-      li.append(node("small","",new Date(item.start).toLocaleString("fr-FR",{dateStyle:"full",timeStyle:"short",timeZone:"Europe/Oslo"})+" · heure Oslo"));
+      const time=item.allDay?new Date(item.start).toLocaleDateString("fr-FR",{dateStyle:"full",timeZone:"Europe/Oslo"})+" · journée sans horaire":new Date(item.start).toLocaleString("fr-FR",{dateStyle:"full",timeStyle:"short",timeZone:"Europe/Oslo"})+" · heure Oslo";
+      li.append(node("small","",time));
       ul.append(li);
     }
     body.append(ul);
