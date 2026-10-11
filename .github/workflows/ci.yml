@@ -1,7 +1,7 @@
 name: DataPass Edge V0.3 qualification
 on:
   pull_request:
-    branches: [main, feat/edge-sidebar-v1, feat/personal-dashboard-v1]
+    branches: [main, feat/edge-sidebar-v1, feat/personal-dashboard-v1, feat/personal-command-center-v2]
   workflow_dispatch:
 permissions:
   contents: read
@@ -40,7 +40,7 @@ jobs:
       - run: cargo build --release --manifest-path bridge/Cargo.toml
       - run: node scripts/native-host-smoke.mjs
   synthetic-browser:
-    if: github.event_name == 'pull_request' && github.head_ref == 'feat/personal-command-center-v2'
+    if: github.event_name == 'pull_request' && (github.head_ref == 'feat/personal-command-center-v2' || github.head_ref == 'feat/visual-library-edge-entry-v1')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
