@@ -14,7 +14,7 @@
   <aside class="rail" aria-label="Navigation personnelle">
     <div class="rail-brand"><span class="logo-mark">D</span><span class="brand-type">DATAPASS<small>PERSONAL OS</small></span></div>
     <div class="rail-section-label">NAVIGATION</div>
-    <nav class="rail-nav" aria-label="Vues"><button class="rail-choice active" data-view="all">◫ <span>Mon dashboard</span></button><button class="rail-choice" data-view="news">◎ <span>Actualités</span></button><button class="rail-choice" data-view="leisure">✦ <span>Loisirs & sport</span></button><button class="rail-choice" data-view="dev">⌘ <span>IT & projets</span></button></nav>
+    <nav class="rail-nav" aria-label="Vues"><button id="open-x-feeds" type="button" class="rail-choice">𝕏 <span>X / Feeds</span></button><button class="rail-choice active" data-view="all">◫ <span>Mon dashboard</span></button><button class="rail-choice" data-view="news">◎ <span>Actualités</span></button><button class="rail-choice" data-view="leisure">✦ <span>Loisirs & sport</span></button><button class="rail-choice" data-view="dev">⌘ <span>IT & projets</span></button></nav>
     <div class="rail-divider"></div>
     <div class="rail-section-label">CONVERSATIONS <span class="subtle">locales / onglets</span></div>
     <div class="rail-actions"><button data-action="new-chatgpt" class="rail-mini">+ ChatGPT</button><button data-action="new-claude" class="rail-mini">+ Claude</button></div>
@@ -50,5 +50,6 @@
 <input type="file" accept=".ics,text/calendar" id="calendar-file" hidden>
 <div id="notice" role="status" aria-live="polite" class="notice" hidden></div>
 <script type="module" src="dashboard.mjs"></script>
+<script type="module" src="x-feeds-link.mjs"></script>
 </body>
 </html>

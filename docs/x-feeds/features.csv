@@ -1,0 +1,9 @@
+id,version,component,criterion,status,verification
+XFEED-001,V1,Navigation,X Feeds available in Edge sidepanel and dashboard,CODE,source+GUI
+XFEED-002,V1,Presets,Home Lists Bookmarks AI Fabric Visualisation feed tabs,CODE,unit+GUI
+XFEED-003,V1,Custom,Add reorder remove up to 24 feeds and persist locally,CODE,unit+GUI
+XFEED-004,V1,Open,Open or reuse exact HTTPS X tab on user click,CODE,GUI
+XFEED-005,V1,Security,No iframe scraping X APIs automatic scroll content scripts or extra host permissions,CODE,static
+XFEED-006,V1,Responsive,No horizontal overflow at 390 px,STAGED,WindowsEdge
+XFEED-007,V1,Preservation,Dashboard sidebar gallery shortcuts all preserved,STAGED,integratedGUI
+XFEED-008,V1,Release,Qualified exact SHA Windows Edge and publish verified deliverable,STAGED,ownerWindows
