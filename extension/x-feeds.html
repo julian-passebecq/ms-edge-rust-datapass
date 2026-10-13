@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light">
+<title>DataPass · X / Feeds</title><link rel="stylesheet" href="x-feeds.css"></head>
+<body><div class="shell">
+  <aside class="rail">
+    <a href="dashboard.html" class="brand"><span class="logo">D</span><span><strong>DATAPASS</strong><small>PERSONAL OS</small></span></a>
+    <div class="caption">MES ESPACES</div>
+    <a class="nav-item" href="dashboard.html">◫ &nbsp; Mon dashboard</a>
+    <a class="nav-item" href="https://datapass-visual-gallery-preview.datapass.workers.dev/" target="_blank" rel="noopener noreferrer">▣ &nbsp; Visual Library</a>
+    <a class="nav-item selected" href="x-feeds.html" aria-current="page">𝕏 &nbsp; X / Feeds</a>
+    <div class="rail-bottom"><p>Onglets et favoris stockés localement. Aucune lecture du fil, des cookies ou des messages X.</p></div>
+  </aside>
+  <main class="main">
+    <header class="top"><span>GALAXY <span class="slash">/</span> SOCIAL FEEDS</span><span class="local"><span class="dot"></span> Navigation locale uniquement</span></header>
+    <div class="body">
+      <section class="intro"><div><p class="eyebrow">X / FEEDS</p><h1>Tes flux, à portée d’onglet.</h1><p class="sub">Organise tes recherches, listes et signets X. Chaque flux s’ouvre dans un véritable onglet Edge ; aucun contenu n’est extrait.</p></div><span class="big-mark" aria-hidden="true">𝕏</span></section>
+      <section class="board" aria-label="Flux X enregistrés">
+        <div class="board-head"><div><h2>Mes onglets de feed</h2><p>Sélectionne un flux ci-dessous, puis ouvre-le sur X.</p></div><span id="count" class="count"></span></div>
+        <div id="feed-tabs" class="feed-tabs" role="tablist" aria-label="Flux enregistrés"></div>
+        <div id="feed-details" class="feed-details" role="tabpanel" tabindex="0" aria-live="polite"></div>
+      </section>
+      <section class="add-panel"><div><h2>Ajouter un flux</h2><p>Une liste X, une recherche ou un profil. Maximum 24 flux personnels.</p></div>
+        <form id="add-feed" class="feed-form">
+          <label>Nom du flux<input id="feed-title" maxlength="60" placeholder="Ex. Architecture IA" required></label>
+          <label>Adresse X HTTPS<input id="feed-url" inputmode="url" type="url" placeholder="https://x.com/search?q=...&f=live" required></label>
+          <button type="submit" class="add-button">+ Ajouter un onglet</button>
+        </form>
+        <div class="suggestion">Exemples : <code>https://x.com/i/lists/123456</code> · <code>https://x.com/search?q=Power%20BI&amp;f=live</code></div>
+      </section>
+      <div class="foot-note">L’onglet « Accueil » donne accès à « Pour vous » et « Abonnements » dans X. Leur sélection interne n’est pas contrôlable par un lien externe fiable. Aucun flux X n’est intégré en iframe.</div>
+    </div>
+  </main>
+</div><div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<script type="module" src="x-feeds.mjs"></script></body></html>
